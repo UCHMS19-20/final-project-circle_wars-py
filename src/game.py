@@ -14,7 +14,8 @@ character = {
     "y_acceleration": -height/60,
     "y_velocity": 0,
     "x_velocity": width/150,
-    "jumping": 0
+    "jumping": 0,
+    "jumps" : 2
 }
 
 win = pygame.display.set_mode((width,height), pygame.RESIZABLE)
@@ -49,10 +50,14 @@ while True:
     if keys[pygame.K_DOWN]:
         character["y_acceleration"] -= height/60
     
-    if keys[pygame.K_UP] and character["jumping"] == 0:
-        character["jumping"] = 1
+    if keys[pygame.K_UP] and character["jumping"] == 0 and character["jumps"] > 0:
         character["y_velocity"] = height/2.5
-        
+        character["jumping"] = 1
+    
+    if keys[pygame.K_UP] == False and character["jumping"] == 1:
+        character["jumping"] = 0
+        character["jumps"] -= 1
+
     character["y_velocity"] += character["y_acceleration"]
     character["y"] -= round(character["y_velocity"]/25)
     if character["x"] > width*0.125 - character["diameter_x"] and character["x"] < width*0.875:
@@ -60,12 +65,14 @@ while True:
             character["y"] = (height/1.25)-(height/25)
             character["y_velocity"] = 0
             character["y_acceleration"] = -height/60
+            character["jumps"] = 2
             character["jumping"] = 0
     else:
         if character["y"] >= height:
             character["y"] = height
             character["y_velocity"] = 0
             character["y_aceleration"] = -height/60
+            character["jumps"] = 2
             character["jumping"] = 0
     
     pygame.draw.rect(win, (0, 0, 0), [width/8, height/1.25, width*0.75, height/5])
