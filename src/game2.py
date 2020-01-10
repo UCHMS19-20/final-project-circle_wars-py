@@ -1,6 +1,5 @@
-# fix resize in y direction causing spasm and character jump under stage.
 import pygame
-import math
+
 pygame.init()
 
 screen_width = 800
@@ -26,29 +25,52 @@ p1 = character(screen_width/10, screen_height/10, stage_x, stage_y-screen_height
 
 win = pygame.display.set_mode((screen_width,screen_height), pygame.RESIZABLE)
 
-character_dead = False
+p1_dead = False
 
 p1_sprite = pygame.image.load(r"C:\Users\kcheng\Documents\GitHub\final-project-circle_wars-py\src\img\reaper.png")
-while True:
+start_screen = pygame.image.load(r"C:\Users\kcheng\Documents\GitHub\final-project-circle_wars-py\src\img\StartScreen.png")
+
+game_start = False
+
+while game_start == False:
+    pygame.time.delay(25)
+    win.fill((255, 255, 255))
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+        if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+            print("key")
+            game_start = True
+
+    if event.type == pygame.VIDEORESIZE:
+        surface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+        screen_width = event.w
+        screen_height = event.h
+    
+    win.blit(pygame.transform.scale(start_screen, (screen_width, screen_height)), (0, 0))
+    pygame.display.update()
+
+while p1_dead == False:
     pygame.time.delay(25)
     win.fill((255, 255, 255))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
 
-    if event.type == pygame.VIDEORESIZE:
-        surface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-        p1.x_pos = p1.x_pos * event.w/screen_width
-        p1.y_pos = p1.y_pos * event.h/screen_height
-        screen_width = event.w
-        screen_height = event.h
-        p1.x_diameter = screen_width/10
-        p1.y_diameter = screen_height/10
-        p1.y_accel = -screen_height/50
-        p1.x_vel = screen_width/150
-        p1.hitbox = pygame.Rect(p1.x_pos, p1.y_pos, p1.x_diameter, p1.y_diameter)
-        stage_y = screen_height/1.25
-        stage_x = screen_width/8
+        if event.type == pygame.VIDEORESIZE:
+            surface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+            p1.x_pos = p1.x_pos * event.w/screen_width
+            p1.y_pos = p1.y_pos * event.h/screen_height
+            screen_width = event.w
+            screen_height = event.h
+            p1.x_diameter = screen_width/10
+            p1.y_diameter = screen_height/10
+            p1.y_accel = -screen_height/50
+            p1.x_vel = screen_width/150
+            p1.hitbox = pygame.Rect(p1.x_pos, p1.y_pos, p1.x_diameter, p1.y_diameter)
+            stage_y = screen_height/1.25
+            stage_x = screen_width/8
 
     stage_hitbox = pygame.draw.rect(win, (0, 0, 0), [stage_x, stage_y, screen_width*0.75, screen_height/5])
 
@@ -61,7 +83,7 @@ while True:
         stage_x = screen_width/8
         p1 = character(screen_width/10, screen_height/10, stage_x, stage_y-screen_height/10, 0, 0, 0, -screen_height/50, 0, 2, 0)
         win = pygame.display.set_mode((screen_width,screen_height), pygame.RESIZABLE)
-        character_dead = False
+        p1_dead = False
 
     if keys[pygame.K_DOWN]:
         p1.y_accel -= screen_height/50
@@ -114,13 +136,12 @@ while True:
 
     pygame.draw.rect(win, (255, 0, 0), p1.hitbox)
     pygame.draw.rect(win, (0, 0, 0), [stage_x, stage_y, screen_width*0.75, screen_height/5])
-    pygame.draw.rect(win, (255, 0, 0), stage_hitbox)
     win.blit(pygame.transform.scale(p1_sprite, (round(p1.x_diameter), round(p1.y_diameter))), (p1.x_pos, p1.y_pos))
     
     font = pygame.font.SysFont("Times New Roman", round(screen_width/10))
     if p1.x_pos <= -p1.x_diameter or p1.x_pos >= screen_width or p1.y_pos <= -p1.y_diameter or p1.y_pos >= screen_height:
         text = font.render("Character died!", True, (0, 0, 0) )
         win.blit(text, ((0), (0)))
-        character_dead = True
-    print(p1.y_pos)
+        p1_dead = True
     pygame.display.update()
+
