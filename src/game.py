@@ -23,12 +23,12 @@ class character:
       self.facing_left = False
 reaper = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\reaper.png")
 knight = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\knight.png")
-scythe = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\scythe.png")
 sword = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\sword.png")
 start_screen = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\StartScreen.png")
 P1 = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\P1.png")
 P2 = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\P2.png")
 cursor = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\cursor.png")
+scythe = pygame.image.load(r"C:\Users\21kch\OneDrive\Documents\GitHub\final-project-circle_wars-py\src\img\scythe2.png")
 stage_y = screen_height/1.25
 stage_x = screen_width/8
 p1 = character(screen_width/10, screen_height/10, stage_x, stage_y-screen_height/10, 0, 0, 0, -screen_height/50, 0, 2, 0, False, True, False)
@@ -43,11 +43,15 @@ p1_weapon_x = 1
 p1_weapon_y = 1
 p2_weapon_x = 1
 p2_weapon_y = 1
+p1_attack_frame = 0
+p2_attack_frame = 0
 P1_x = screen_width*0.25-screen_width/30
 P1_y = screen_height*0.9
 P2_x = screen_width*0.75-screen_width/30
 P2_y = screen_height*0.9
 cursor = pygame.transform.rotozoom(cursor, 45, 1)
+p1_attacking = False
+p2_attacking = False
 game_start = False
 player_1_dead = False
 player_2_dead = False
@@ -57,6 +61,14 @@ character_2_selected = False
 mouse_down = False
 p2.facing_left = True
 p2.facing_right = False
+p2_damage = 0
+p2_hitstun = 0
+p1_damage = 0
+p1_hitstun = 0
+p1_was_right = False
+p1_was_left = False
+p2_was_right = False
+p2_was_left = False
 while True:
     restart = False
     while game_start == False:
@@ -97,7 +109,7 @@ while True:
         pygame.display.update()
     
     while character_1_selected == False or character_2_selected == False:
-        pygame.time.delay(10)
+        pygame.time.delay(5)
         win.fill((255, 255, 255))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -133,24 +145,23 @@ while True:
                     p1_sprite = reaper
                     p1_char = reaper
                     p1_weapon = scythe
-                    p1_weapon = pygame.transform.rotozoom(p1_weapon, -45, 1)
-                    p1_weapon_x = p1.x_pos + p1.x_diameter * 0.75
+                    p1_weapon_rotate = p1_weapon
+                    p1_weapon_x = p1.x_pos - p2.x_diameter*0.25
                     character_1_selected = True
                 if reaper_hitbox.colliderect(P2_hitbox):
                     p2_sprite = reaper
                     p2_char = reaper
                     p2_sprite = pygame.transform.flip(p2_sprite, 1, 0)
                     p2_weapon = scythe
-                    p2_weapon = pygame.transform.rotozoom(p2_weapon, -45, 1)
-                    p2_weapon = pygame.transform.flip(p2_weapon, 1, 0)
-                    p2_weapon_x = p2.x_pos - p2.x_diameter * 0.25
+                    p2_weapon_rotate = p2_weapon
+                    p2_weapon_rotate = pygame.transform.flip(p2_weapon_rotate, 1, 0)
+                    p2_weapon_x = p2.x_pos + p2.x_diameter*0.25
                     character_2_selected = True
                 if knight_hitbox.colliderect(P1_hitbox):
                     p1_sprite = knight
                     p1_char = knight
                     p1_weapon = sword
-                    p1_weapon = pygame.transform.rotozoom(p1_weapon, -45, 1)
-                    p1_weapon_y = p1.y_pos - p1.y_diameter/4
+                    p1_weapon_rotate = pygame.transform.rotozoom(p1_weapon, -45, 1)
                     p1_weapon_x = p1.x_pos + p1.x_diameter * 0.9
                     character_1_selected = True
                 if knight_hitbox.colliderect(P2_hitbox):
@@ -158,11 +169,14 @@ while True:
                     p2_char = knight
                     p2_weapon = sword
                     p2_sprite = pygame.transform.flip(p2_sprite, 1, 0)
-                    p2_weapon = pygame.transform.rotozoom(p2_weapon, -45, 1)
-                    p2_weapon = pygame.transform.flip(p2_weapon, 1, 0)
-                    p2_weapon_y = p2.y_pos - p2.y_diameter/4
+                    p2_weapon_rotate = pygame.transform.rotozoom(p2_weapon, -45, 1)
+                    p2_weapon_rotate = pygame.transform.flip(p2_weapon_rotate, 1, 0)
                     p2_weapon_x = p2.x_pos - p2.x_diameter * 0.4
                     character_2_selected = True
+                if reaper_hitbox.colliderect(P1_hitbox) == False and knight_hitbox.colliderect(P1_hitbox) == False:
+                    character_1_selected = False
+                if reaper_hitbox.colliderect(P2_hitbox) == False and knight_hitbox.colliderect(P2_hitbox) == False:
+                    character_2_selected = False
                 mouse_down = False
         if mouse_down == True:
             if P1_hitbox.colliderect(cursor_hitbox):
@@ -219,12 +233,206 @@ while True:
 
         stage_hitbox = pygame.draw.rect(win, (0, 0, 0), [round(stage_x), round(stage_y), round(screen_width*0.75), round(screen_height/5)])
         
+        if p1_char == reaper:
+            p1_weapon_diameter_x = p1.x_diameter
+            p1_weapon_diameter_y = p1.y_diameter
+        if p2_char == reaper:
+            p2_weapon_diameter_x = p2.x_diameter
+            p2_weapon_diameter_y = p2.y_diameter
+        if p1_char == knight:
+            p1_weapon_diameter_x = p1.x_diameter/2
+            p1_weapon_diameter_y = p1.y_diameter
+        if p2_char == knight:
+            p2_weapon_diameter_x = p2.x_diameter/2
+            p2_weapon_diameter_y = p2.y_diameter
+
         keys = pygame.key.get_pressed()
 
+        if keys[pygame.K_f] and p1_attacking == False and p1_hitstun == 0:
+            p1_attacking = True
+        if p1_attacking == True:
+            p1_attack_frame += 1
+        if p1_char == reaper:
+            if p1.facing_right == True:
+                if p1_attack_frame > 0 and p1_attack_frame < 5:
+                    p1_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p1_weapon, -90), 0, 1)
+                    p1_weapon_x = p1.x_pos + 0.75*p1.x_diameter
+                if p1_attack_frame >= 5 and p1_attack_frame < 15:
+                    p1_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p1_weapon, -90 + -15*(p1_attack_frame-4)), 0, 1)
+                    p1_weapon_x = p1.x_pos + 0.75*p1.x_diameter
+                if p1_attack_frame >= 15 and p1_attack_frame < 25:
+                    p1_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p1_weapon, -90 + -100 + 15*(p1_attack_frame-14)), 0, 1)
+                    p1_weapon_x = p1.x_pos + 0.75*p1.x_diameter
+                if p1_attack_frame == 25:
+                    p1_attacking = False
+                    p1_attack_frame = 0
+                    p1_weapon_rotate = p1_weapon
+                    p1_weapon_x = p1.x_pos - p1.x_diameter*0.25
+            
+            if p1.facing_left == True:
+                if p1_attack_frame > 0 and p1_attack_frame < 5:
+                    p1_weapon_rotate = pygame.transform.rotate(p1_weapon, 90)
+                    p1_weapon_x = p1.x_pos - 0.75*p1.x_diameter
+                if p1_attack_frame >= 5 and p1_attack_frame < 15:
+                    p1_weapon_rotate = pygame.transform.rotate(p1_weapon, 90 + -15*(p1_attack_frame-4))
+                    p1_weapon_x = p1.x_pos - 0.75*p1.x_diameter
+                if p1_attack_frame >= 15 and p1_attack_frame < 25:
+                    p1_weapon_rotate = pygame.transform.rotate(p1_weapon, 90 + -100 + 15*(p1_attack_frame-14))
+                    p1_weapon_x = p1.x_pos - 0.75*p1.x_diameter
+                if p1_attack_frame == 25:
+                    p1_attacking = False
+                    p1_attack_frame = 0
+                    p1_weapon_rotate = p1_weapon
+                    p1_weapon_x = p1.x_pos + p1.x_diameter*0.25
+                    if p1.facing_left == True:
+                        p1_weapon_rotate = pygame.transform.flip(p1_weapon, 1, 0)
+        if p1_char == knight:
+            if p1.facing_right == True:
+                if p1_attack_frame > 0 and p1_attack_frame < 5:
+                    pass
+                if p1_attack_frame >= 5 and p1_attack_frame < 15:
+                    p1_weapon_rotate = pygame.transform.rotate(p1_weapon, -10*(p1_attack_frame-4))
+                if p1_attack_frame >= 15 and p1_attack_frame < 25:
+                    p1_weapon_rotate = pygame.transform.rotate(p1_weapon, -100 + 10*(p1_attack_frame-14))
+                if p1_attack_frame == 25:
+                    p1_attacking = False
+                    p1_attack_frame = 0
+                    p1_weapon_rotate = pygame.transform.rotozoom(p1_weapon, -45, 1)
+                    p1_weapon_x = p1.x_pos + p1.x_diameter*0.75
+            
+            if p1.facing_left == True:
+                if p1_attack_frame > 0 and p1_attack_frame < 5:
+                    p1_weapon_x = p1.x_pos - p1.x_diameter*0.4
+                if p1_attack_frame >= 5 and p1_attack_frame < 15:
+                    p1_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p1_weapon, -10*(p1_attack_frame-4)), 1, 0)
+                    p1_weapon_x = p1.x_pos - p1.x_diameter*0.4
+                if p1_attack_frame >= 15 and p1_attack_frame < 25:
+                    p1_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p1_weapon, 90 - 100 - 10*(p1_attack_frame-14)), 1, 0)
+                    p1_weapon_x = p1.x_pos - p1.x_diameter*0.4
+                if p1_attack_frame == 25:
+                    p1_attacking = False
+                    p1_attack_frame = 0
+                    p1_weapon_rotate = pygame.transform.flip(pygame.transform.rotozoom(p1_weapon, -45, 1), 1, 0)
+                    p1_weapon_x = p1.x_pos - p1.x_diameter*0.4
+
+        if keys[pygame.K_k] and p2_attacking == False and p2_hitstun == 0:
+            p2_attacking = True
+        if p2_attacking == True:
+            p2_attack_frame += 1
+        if p2_char == reaper:
+            if p2.facing_right == True:
+                if p2_attack_frame > 0 and p2_attack_frame < 5:
+                    p2_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p2_weapon, -90), 0, 1)
+                    p2_weapon_x = p2.x_pos + 0.75*p2.x_diameter
+                if p2_attack_frame >= 5 and p2_attack_frame < 15:
+                    p2_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p2_weapon, -90 + -15*(p2_attack_frame-4)), 0, 1)
+                    p2_weapon_x = p2.x_pos + 0.75*p2.x_diameter
+                if p2_attack_frame >= 15 and p2_attack_frame < 25:
+                    p2_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p2_weapon, -90 + -100 + 15*(p1_attack_frame-14)), 0, 1)
+                    p2_weapon_x = p2.x_pos + 0.75*p2.x_diameter
+                if p1_attack_frame == 25:
+                    p2_attacking = False
+                    p2_attack_frame = 0
+                    p2_weapon_rotate = p2_weapon
+                    p2_weapon_x = p2.x_pos - p2.x_diameter*0.25
+            
+            if p2.facing_left == True:
+                if p2_attack_frame > 0 and p2_attack_frame < 5:
+                    p2_weapon_rotate = pygame.transform.rotate(p2_weapon, 90)
+                    p2_weapon_x = p2.x_pos - 0.75*p2.x_diameter
+                if p2_attack_frame >= 5 and p2_attack_frame < 15:
+                    p2_weapon_rotate = pygame.transform.rotate(p2_weapon, 90 + -15*(p2_attack_frame-4))
+                    p2_weapon_x = p2.x_pos - 0.75*p2.x_diameter
+                if p2_attack_frame >= 15 and p2_attack_frame < 25:
+                    p2_weapon_rotate = pygame.transform.rotate(p2_weapon, 90 + -100 + 15*(p2_attack_frame-14))
+                    p2_weapon_x = p2.x_pos - 0.75*p2.x_diameter
+                if p2_attack_frame == 25:
+                    p2_attacking = False
+                    p2_attack_frame = 0
+                    p2_weapon_rotate = p2_weapon
+                    p2_weapon_x = p2.x_pos + p2.x_diameter*0.25
+                    if p2.facing_left == True:
+                        p2_weapon_rotate = pygame.transform.flip(p2_weapon, 1, 0)
+        if p2_char == knight:
+            if p2.facing_right == True:
+                if p2_attack_frame > 0 and p2_attack_frame < 5:
+                    pass
+                if p2_attack_frame >= 5 and p2_attack_frame < 15:
+                    p2_weapon_rotate = pygame.transform.rotate(p2_weapon, -10*(p2_attack_frame-4))
+                if p2_attack_frame >= 15 and p2_attack_frame < 25:
+                    p2_weapon_rotate = pygame.transform.rotate(p2_weapon, -100 + 10*(p2_attack_frame-14))
+                if p2_attack_frame == 25:
+                    p2_attacking = False
+                    p2_attack_frame = 0
+                    p2_weapon_rotate = pygame.transform.rotozoom(p2_weapon, -45, 1)
+                    p2_weapon_x = p2.x_pos + p2.x_diameter*0.75
+            
+            if p2.facing_left == True:
+                if p2_attack_frame > 0 and p2_attack_frame < 5:
+                    p2_weapon_x = p2.x_pos - p2.x_diameter*0.4
+                if p2_attack_frame >= 5 and p2_attack_frame < 15:
+                    p2_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p2_weapon, -10*(p2_attack_frame-4)), 1, 0)
+                    p2_weapon_x = p2.x_pos - p2.x_diameter*0.4
+                if p2_attack_frame >= 15 and p2_attack_frame < 25:
+                    p2_weapon_rotate = pygame.transform.flip(pygame.transform.rotate(p2_weapon, 90 - 100 - 10*(p2_attack_frame-14)), 1, 0)
+                    p2_weapon_x = p2.x_pos - p2.x_diameter*0.4
+                if p2_attack_frame == 25:
+                    p2_attacking = False
+                    p2_attack_frame = 0
+                    p2_weapon_rotate = pygame.transform.flip(pygame.transform.rotozoom(p2_weapon, -45, 1), 1, 0)
+                    p2_weapon_x = p2.x_pos - p2.x_diameter*0.4
+        
+        p1_weapon_hitbox = pygame.Rect(round(p1_weapon_x), round(p1_weapon_y), round(p1_weapon_diameter_x), round(p1_weapon_diameter_y))
+        p2_weapon_hitbox = pygame.Rect(round(p2_weapon_x), round(p2_weapon_y), round(p2_weapon_diameter_x), round(p2_weapon_diameter_y))
+        if p1_weapon_hitbox.colliderect(p2.hitbox) and p1_attacking == True:
+            p2_hitstun = 5
+            p2_damage += 5
+            if p1.facing_right == True:
+                p1_was_right = True
+                p1_was_left = False
+                p2.x_pos += p1_weapon_diameter_x
+            if p1.facing_left == True:
+                p1_was_left = True
+                p1_was_right = False
+                p2.x_pos -= p1_weapon_diameter_x
+
+        if p2_hitstun > 0:
+            p2_hitstun -= 1
+            if p1_was_right == True:
+                p2.x_vel = p2_damage*screen_width/500
+            if p1_was_left == True:
+                p2.x_vel = -p2_damage*screen_width/500
+            p2.x_pos += p2.x_vel
+
+        if p2_weapon_hitbox.colliderect(p1.hitbox) and p2_attacking == True:
+            p1_hitstun = 5
+            p1_damage += 5
+            if p2.facing_right == True:
+                p2_was_right = True
+                p2_was_left = False
+                p1.x_pos += p2_weapon_diameter_x
+            if p2.facing_left == True:
+                p2_was_left = True
+                p2_was_right = False
+                p1.x_pos -= p2_weapon_diameter_x
+        if p1_hitstun > 0:
+            p1_hitstun -= 1
+            if p2_was_right == True:
+                p1.x_vel = p1_damage*screen_width/500
+            if p2_was_left == True:
+                p1.x_vel = -p1_damage*screen_width/500
+            p1.x_pos += p1.x_vel
+
+        if p1_hitstun == 0:
+            p1.x_vel = screen_width/150
+            p1.x_accel = 0
+        if p2_hitstun == 0:
+            p2.x_vel = screen_width/150
+            p1.x_accel = 0
         if keys[pygame.K_s]:
             p1.y_accel -= screen_height/50
         
-        if keys[pygame.K_w] and p1.jumping == 0 and p1.jumps > 0:
+        if keys[pygame.K_w] and p1.jumping == 0 and p1.jumps > 0 and p1_attacking == False:
             p1.y_vel = screen_height/2.5
             p1.y_accel = -screen_height/50
             p1.jumping = 1
@@ -245,31 +453,23 @@ while True:
                 p1.jumps = 2
                 p1.jumping = 0
         
-        if keys[pygame.K_a] and keys[pygame.K_d] == False:
+        if keys[pygame.K_a] and keys[pygame.K_d] == False and p1_attacking == False and p1_hitstun == 0:
             if p1.facing_right == True:
                 p1_sprite = pygame.transform.flip(p1_sprite, 1, 0)
-                p1_weapon = pygame.transform.flip(p1_weapon, 1, 0)
+                p1_weapon_rotate = pygame.transform.flip(p1_weapon_rotate, 1, 0)
                 p1.facing_right = False
                 p1.facing_left = True
-            if p1_char == reaper:
-                p1_weapon_x = p1.x_pos - p1.x_diameter*0.25
-            if p1_char == knight:
-                p1_weapon_x = p1.x_pos - p1.x_diameter*0.4
             p1.x_vel = screen_width/150
             p1.x_pos -= p1.x_vel
         else:
             p1.x_vel = 0
             
-        if keys[pygame.K_d] and keys[pygame.K_a] == False:
+        if keys[pygame.K_d] and keys[pygame.K_a] == False and p1_attacking == False and p1_hitstun == 0:
             if p1.facing_left == True:
                 p1_sprite = pygame.transform.flip(p1_sprite, 1, 0)
-                p1_weapon = pygame.transform.flip(p1_weapon, 1, 0)
+                p1_weapon_rotate = pygame.transform.flip(p1_weapon_rotate, 1, 0)
                 p1.facing_left = False
                 p1.facing_right = True
-            if p1_char == reaper:
-                p1_weapon_x = p1.x_pos + p1.x_diameter*0.75
-            if p1_char == knight:
-                p1_weapon_x = p1.x_pos + p1.x_diameter*0.9
             p1.x_vel = screen_width/150
             p1.x_pos += p1.x_vel
         else:
@@ -312,31 +512,23 @@ while True:
                 p2.jumps = 2
                 p2.jumping = 0
         
-        if keys[pygame.K_LEFT] and keys[pygame.K_RIGHT] == False:
+        if keys[pygame.K_LEFT] and keys[pygame.K_RIGHT] == False and p2_attacking == 0 and p2_hitstun == 0:
             if p2.facing_right == True:
                 p2_sprite = pygame.transform.flip(p2_sprite, 1, 0)
-                p2_weapon = pygame.transform.flip(p2_weapon, 1, 0)
+                p2_weapon_rotate = pygame.transform.flip(p2_weapon_rotate, 1, 0)
                 p2.facing_right = False
                 p2.facing_left = True
-            if p2_char == knight:
-                p2_weapon_x = p2.x_pos - p2.x_diameter*0.4
-            if p2_char == reaper:
-                p2_weapon_x = p2.x_pos - p2.x_diameter*0.25
             p2.x_vel = screen_width/150
             p2.x_pos -= p2.x_vel
         else:
             p2.x_vel = 0
             
-        if keys[pygame.K_RIGHT] and keys[pygame.K_LEFT] == False:
+        if keys[pygame.K_RIGHT] and keys[pygame.K_LEFT] == False and p2_attacking == 0 and p2_hitstun == 0:
             if p2.facing_left == True:
                 p2_sprite = pygame.transform.flip(p2_sprite, 1, 0)
-                p2_weapon = pygame.transform.flip(p2_weapon, 1, 0)
+                p2_weapon_rotate = pygame.transform.flip(p2_weapon_rotate, 1, 0)
                 p2.facing_left = False
                 p2.facing_right = True
-            if p2_char == knight:
-                p2_weapon_x = p2.x_pos + p2.x_diameter*0.9
-            if p2_char == reaper:
-                p2_weapon_x = p2.x_pos + p2.x_diameter*0.75
             p2.x_vel = screen_width/150
             p2.x_pos += p2.x_vel
         else:
@@ -354,24 +546,49 @@ while True:
                     p2.x_pos = stage_x - p1.x_diameter
         p2.y_pos += 2
         p2.hitbox = pygame.Rect(round(p2.x_pos), round(p2.y_pos), round(p2.x_diameter), round(p2.y_diameter))
-
+        
         if p1_char == reaper:
-            p1_weapon_y = p1.y_pos
+            p1_weapon_y = p1.y_pos - p1.y_diameter*0.1
+            if p1_attacking == 0:
+                if p1.facing_right == True:
+                    p1_weapon_x = p1.x_pos - p1.x_diameter*0.25 
+                if p1.facing_left == True:
+                    p1_weapon_x = p1.x_pos  + p1.x_diameter*0.25
         if p2_char == reaper:
-            p2_weapon_y = p2.y_pos
+            p2_weapon_y = p2.y_pos - p2.y_diameter*0.1
+            if p2_attacking == 0:
+                if p2.facing_right == True:
+                    p2_weapon_x = p2.x_pos - p2.x_diameter*0.25 
+                if p2.facing_left == True:
+                    p2_weapon_x = p2.x_pos  + p2.x_diameter*0.25
         if p1_char == knight:
             p1_weapon_y = p1.y_pos - p1.y_diameter/4
+            if p1_attacking == 0:
+                if p1.facing_right == True:
+                    p1_weapon_x = p1.x_pos + p1.x_diameter*0.9
+                if p1.facing_left == True:
+                    p1_weapon_x = p1.x_pos - p1.x_diameter*0.4
         if p2_char == knight:
             p2_weapon_y = p2.y_pos - p2.y_diameter/4
-
-        pygame.draw.rect(win, (255, 0, 0), p1.hitbox)
-        pygame.draw.rect(win, (255, 0, 0), p2.hitbox)
+            if p2_attacking == 0:
+                if p2.facing_right == True:
+                    p2_weapon_x = p2.x_pos + p2.x_diameter*0.9
+                if p2.facing_left == True:
+                    p2_weapon_x = p2.x_pos - p2.x_diameter*0.4
+        font = pygame.font.SysFont("Times New Roman", round(screen_width/50))
+        text = font.render("Player 1 damage:", True, (0, 0, 0) )
+        win.blit(text, ((0), (0)))
+        text = font.render("Player 2 damage:", True, (0, 0, 0) )
+        win.blit(text, ((0), (round(screen_width/50))))
+        text = font.render("{0}".format(p1_damage), True, (0, 0, 0) )
+        win.blit(text, ((round(screen_width/2)), (0)))
+        text = font.render("{0}".format(p2_damage), True, (0, 0, 0) )
+        win.blit(text, ((round(screen_width/2)), (round(screen_width/50))))
         pygame.draw.rect(win, (0, 0, 0), [round(stage_x), round(stage_y), round(screen_width*0.75), round(screen_height/5)])
         win.blit(pygame.transform.scale(p1_sprite, (round(p1.x_diameter), round(p1.y_diameter))), (round(p1.x_pos), round(p1.y_pos)))
-        win.blit(pygame.transform.scale(p1_weapon, (round(p1.x_diameter/2), round(p1.y_diameter))), (round(p1_weapon_x), round(p1_weapon_y)))
+        win.blit(pygame.transform.scale(p1_weapon_rotate, (round(p1_weapon_diameter_x), round(p1_weapon_diameter_y))), (round(p1_weapon_x), round(p1_weapon_y)))
         win.blit(pygame.transform.scale(p2_sprite, (round(p2.x_diameter), round(p2.y_diameter))), (round(p2.x_pos), round(p2.y_pos)))
-        win.blit(pygame.transform.scale(p2_weapon, (round(p2.x_diameter/2), round(p2.y_diameter))), (round(p2_weapon_x), round(p2_weapon_y)))
-        
+        win.blit(pygame.transform.scale(p2_weapon_rotate, (round(p2_weapon_diameter_x), round(p2_weapon_diameter_y))), (round(p2_weapon_x), round(p2_weapon_y)))
         if p1.x_pos <= -p1.x_diameter or p1.x_pos >= screen_width or p1.y_pos <= -p1.y_diameter or p1.y_pos >= screen_height:
             player_1_dead = True
             player_dead = True
@@ -428,12 +645,12 @@ while True:
             stage_x = screen_width/8
             if p1.facing_left == True:
                 p1_sprite = pygame.transform.flip(p1_sprite, 1, 0)
-                p1_weapon = pygame.transform.flip(p1_weapon, 1, 0)
+                p1_weapon_rotate = pygame.transform.flip(p1_weapon, 1, 0)
                 p1.facing_left = False
                 p1.facing_right = True
             if p2.facing_right == True:
                 p2_sprite = pygame.transform.flip(p2_sprite, 1, 0)
-                p2_weapon = pygame.transform.flip(p2_weapon, 1, 0)
+                p2_weapon_rotate = pygame.transform.flip(p2_weapon, 1, 0)
             p1 = character(screen_width/10, screen_height/10, stage_x, stage_y-screen_height/10, 0, 0, 0, -screen_height/50, 0, 2, 0, False, True, False)
             p2 = character(screen_width/10, screen_height/10, screen_width*0.875-screen_width/10, stage_y-screen_height/10, 0, 0, 0, -screen_height/50, 0, 2, 0, False, False, True)
             P1_x = screen_width*0.25-screen_width/30
@@ -450,4 +667,12 @@ while True:
             mouse_down = False
             p2.facing_left = True
             p2.facing_right = False
+            p2_damage = 0
+            p2_hitstun = 0
+            p1_damage = 0
+            p1_hitstun = 0
+            p1_was_right = False
+            p1_was_left = False
+            p2_was_right = False
+            p2_was_left = False
         pygame.display.update()
