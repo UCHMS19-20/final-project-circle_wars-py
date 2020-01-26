@@ -1,6 +1,6 @@
 # Sprite Wars
 
-[Flowchart]()
+[Flowchart]()  
 [Presentation](https://docs.google.com/presentation/d/1H5Auej1WupOknXnxyhR2Xu6lyvmJHqLL-JC3GiveYKw/edit?usp=sharing)
 
 ## Description
@@ -13,4 +13,5 @@ When you first open the game, at any time you can choose to resize the window to
 
 ## Citations: 
 
-“Pygame Front Page.” Pygame Front Page - Pygame v2.0.0.dev5 Documentation, www.pygame.org/docs/.
+“Pygame Front Page.” Pygame Front Page - Pygame v2.0.0.dev5 Documentation,  
+www.pygame.org/docs/.
