@@ -13,5 +13,5 @@ When you first open the game, at any time you can choose to resize the window to
 
 ## Citations: 
 
-  “Pygame Front Page.” Pygame Front Page - Pygame v2.0.0.dev5 Documentation,  
+     “Pygame Front Page.” Pygame Front Page - Pygame v2.0.0.dev5 Documentation,  
 www.pygame.org/docs/.
