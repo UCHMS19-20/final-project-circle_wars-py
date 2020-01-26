@@ -1,50 +1,16 @@
-# Intro to Programming Final Project - Fall 2019
+# Sprite Wars
 
-Please note that this website and the repository associated with it are the official source of info for the project. I will post all updates here. Please note that my updates will not be reflected in your repository, only in mine. Updates to the assignment info will be posted [here](https://jgerstein.github.io/FinalProject19/), resources will be on [the resources page](https://jgerstein.github.io/FinalProject19/resources), and sample code will be in the main repository's [examples](https://github.com/jgerstein/FinalProject19/tree/master/examples) folder.
+[Flowchart]()
+[Presentation](https://docs.google.com/presentation/d/1H5Auej1WupOknXnxyhR2Xu6lyvmJHqLL-JC3GiveYKw/edit?usp=sharing)
 
-## Goal
+## Description
 
-Plan, code, document, and present a game written in Python. I encourage you to include graphics with Pygame or another game engine, but will not require it.
+Battle your friends in a 1v1 fighting game where you can choose to be either a sword wielding knight or a reaper using a scythe. The goal of the game is to knock your opponent off screen by inflicting damage on your opponent throught attacks which increase how far they get knocked back. But might you be on the recieving end of an attack and get knocked offstage, be sure to utilize your jumps to make your way back on stage and continue the fight.
 
-## Criteria
+## How to play:
 
-Excellent work will include:
+When you first open the game, at any time you can choose to resize the window to whatever size you prefer. After you are satisfied with the screen size, press any key on the keyboard to get to the character selection screen. From there, click and drag the player icons (circles labeled P1 and P2) to the character you and your friend wants to fight with. Player 1 moves wasd and attacks with "f". Player 2 moves with the arrow keys and attacks with "k". Once a player has been knocked offscreen, press "r" to restart the game, bringing you back to the character selection screen.
 
-* Clean, well-written, effective code
-* Version control in Git
-* Clear documentation of how te code works
-* A presentation of the game and of the process of creating it
-* Citations (MLA format) of the resources you used.
+## Citations: 
 
-## Expectations
-
-### General
-
-* This is intended as an individual project. You may help each other, but you are responsible for your own work.
-* I am willing to consider partnerships for larger and more complex projects
-* You may (and are encouraged to) use resources you find online, but may not outright copy someone else's work and must credit your sources
-* Your work should challenge you but be achievable
-* You are expected to understand how your own code works. If you are not able to explain any part of your own code, that will be cause for concern
-
-### Code
-
-* Your code should make effective use of classes and/or functions. We will review in class
-* Your code should be clear and well documented with comments and appropriate naming schemes
-* Your code should be managed through Git. I will be expecting to see commits reflecting your progress as you work on the project, and would prefer to see feature branches and a stable master branch.
-* Your code should be as reliable and as free of bugs as you can manage
-
-## Timeline
-
-Date  | Checkpoint
-------|---------------------------------------------
-12/16 | Project Proposals Due (all classes)
-12/20 | Git repository setup check
-1/7   | First code checkpoint
-1/13  | Second code checkpoint
-1/17  | Third code checkpoint
-1/23  | Exams Begin. All code and documentation due
-
-## Links
-
-* [Documentation](documentation.md)
-* [Resources](resources.md)
+“Pygame Front Page.” Pygame Front Page - Pygame v2.0.0.dev5 Documentation, www.pygame.org/docs/.
